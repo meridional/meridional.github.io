@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>
+Assignment 1: dancing mandelbrot set
+</title>
+<script src=lib1.js></script>
+
+
+<script id='my_vertex_shader' type='x-shader/x-vertex'>
+   attribute vec3 aPosition;
+   varying   vec3 vPosition;
+//   uniform float uTime;
+   void main() {
+      gl_Position = vec4(aPosition, 1.0);
+      vPosition = aPosition;
+   }
+</script>
+
+<!!--==========================================================================
+
+   Below is the fragment shader from class (with some slight improvements).
+
+   Your assignment is to write your own interesting fragment shader program.
+   Try to have fun with it  use "uTime" to create animated patterns, and
+   "uCursor" to make it responsive to a user's mouse gestures.
+
+   Try to make something as completely different from my "easter egg" example
+   as possible :-)
+
+============================================================================-->
+
+<script id='my_fragment_shader' type='x-shader/x-fragment'>
+   precision mediump float;
+   uniform float uTime;
+   uniform float uScale;
+   uniform vec3  uCursor;
+   varying vec3  vPosition;
+   const int lim = 40;
+   vec3 hsv2rgb(vec3 c)
+   {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+   }
+   void main() {
+      //float c_re = (vPosition.x - uCursor.x- .6 - pow(uTime,2.28)) / pow(uTime,velo)*1.2  ;// * .3/ (uCursor.x);
+      //float c_im = (vPosition.y-uCursor.y)*1.2/(pow(uTime,velo));//* .3/ (uCursor.y);
+      float c_re = vPosition.x *uScale+ uCursor.x-.5;// * .3/ (uCursor.x);
+      float c_im = vPosition.y *uScale+ uCursor.y;//* .3/ (uCursor.y);
+      int iter = 0;
+     // int lim_t = int(sin(uTime*0.3) * 20.0) ;
+      //float x = uCursor.x, y = uCursor.y;
+      float x = 0.+sin(1.0*uTime) * 0.1*sqrt(uScale), y = 0. + cos(1.0*uTime)*0.1*sqrt(uScale);
+      float rr = x*x+y*y;
+      float color = exp(-.010*sqrt(rr));
+      for (int i = 0; i < lim; i++) {
+        rr = x*x+y*y;
+        color *= exp(-.010*sqrt(rr));
+        if (rr > 4.) break;
+        //if (iter >= lim) break;
+        float x_new = (x * x - y * y) + c_re ;
+        y = 2.* x*y + c_im ;
+        x = x_new;
+        iter ++;
+      }
+      //if (iter == lim_t) gl_FragColor = vec4(x,abs(cos(y)+sin(x)),1.,1.);
+      //else gl_FragColor = vec4(0.3,0.3,0.3,1.0);
+      //float it_c = (1.-rr/5.) * (0.7+0.3*abs(rr*sin(.001/rr)));
+      gl_FragColor = vec4(hsv2rgb(vec3(0.9+5.*((color)),0.7,1.0)), 1.0);
+   }
+</script>
+
+<script>
+start_gl('canvas1', document.getElementById('my_vertex_shader'  ).innerHTML,
+                    document.getElementById('my_fragment_shader').innerHTML);
+</script>
+</head>
+<body>
+  <div align="center">
+  <h1>Dancing Mandelbrot Set</h1>
+  <p>Click around to zoom in!</p>
+<canvas id='canvas1' width='640' height='640' align="center"></canvas>
+  </div>
+</body>
+</html>
