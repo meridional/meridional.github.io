@@ -1,0 +1,289 @@
+<script src=lib1.js></script>
+
+<body bgcolor=white>
+<div align="center">
+<canvas id='canvas1' width=400 height=400></canvas>
+</div>
+</body>
+
+<script id='my_vertex_shader' type='x-shader/x-vertex'>
+   attribute vec3 aPosition;
+   varying   vec3 vPosition;
+   void main() {
+      gl_Position = vec4(aPosition, 1.0);
+      vPosition = aPosition;
+   }
+</script>
+
+<script id='my_fragment_shader' type='x-shader/x-fragment'>
+   precision mediump float;
+   uniform float uTime;
+   uniform vec3  uCursor;
+   vec3 V, W;
+   //uniform 
+   varying vec3  vPosition;
+
+   const int count = 2;
+   uniform vec4 uSpheres[count];
+   vec4 sphere[count];
+   bool sReflect[count];
+   vec3 material[count];
+   vec4 specs[count];
+   vec3 Lrgb[2];
+   vec3 Ldir[2];
+
+   // Compute intersection of a ray with a sphere, if any.  Return t.
+   const float inf = 123456789.;
+   float raySphere(vec3 V, vec3 W, vec4 S) {
+      // YOU NEED TO COMPUTE t, BY SETTING UP AND THEN SOLVING A QUADRATIC EQUATION.
+      vec3 vMinusS = V - S.xyz;
+      float b = 2. * dot(vMinusS, W);
+      float c = dot(vMinusS, vMinusS) - S.w * S.w;
+      float d = b * b - 4. * c;
+      if (d < 0.) return inf;
+      d = sqrt(d);
+      if (- d - b < -1e-9) {
+        return inf;
+      }
+      return (-b - d) / 2.;
+   }
+   float fact = 0.8;
+   vec4 weirdSphere[3];
+   void makeWeirdSpheres() {
+      weirdSphere[0] = vec4(0.+.1*sin(uTime),0.,-1.+.1*cos(uTime),.4);
+      weirdSphere[1] = vec4(0.+.1*sin(uTime),0.,-1.1+.1*cos(uTime),.3+.1*cos(uTime));
+      weirdSphere[2] = vec4(0.-.0*sin(uTime),-0.0+.1*sin(uTime),-1.1-.1*cos(uTime),.1+.1*sin(uTime));
+   }
+   vec2 raySphere2(vec3 V, vec3 W, vec4 S) {
+      vec3 vMinusS = V - S.xyz;
+      float b = 2. * dot(vMinusS, W);
+      float c = dot(vMinusS, vMinusS) - S.w * S.w;
+      float d = b * b - 4. * c;
+      vec2 r;
+      if (d < 0.) {
+        r.x = inf;
+        r.y = -inf;
+      } else { 
+        d = sqrt(d);
+        r.x = (-b - d) / 2.;
+        r.y = (-b + d) / 2.;
+      }
+     if (r.x < 0.) {
+      r.x = inf;
+      r.y = -inf;
+     }
+     return r;
+   }
+
+   vec3 interMat;
+   vec4 interSpec;
+   vec4 interSphere;
+   bool interRef;
+   float traceUnionTwo(vec3 V, vec3 W, vec4 s1, vec4 s2) {
+     float r = 0.;
+     vec2 a = raySphere2(V,W,s1);
+     vec2 b = raySphere2(V,W,s2);
+     vec2 c;
+     c.x = max(a.x,b.x);
+     c.y = min(b.y,a.y);
+     if (c.x > c.y) return inf;
+     if (a.x < b.x) {
+        interMat = vec3(1.,0.,0.5+.5*cos(3.5*uTime));
+        interSpec = vec4(interMat, 40.);
+        interSphere = s2; 
+        interRef = true;
+     } else {
+        interMat = vec3(0.7+.3*cos(3.*uTime),0.5+0.5*sin(2.5*uTime),1.);
+        interSpec = vec4(interMat, 40.);
+        interSphere = s1; 
+        interRef = false;
+     }
+     return c.x;
+   }
+   float traceUnionThree(vec3 V, vec3 W, vec4 s1, vec4 s2, vec4 s3) {
+   // s1 `union` s2 `exclude` s3
+     float r = 0.;
+     vec2 a = raySphere2(V,W,s1);
+     vec2 b = raySphere2(V,W,s2);
+     vec2 d = raySphere2(V,W,s3);
+     vec2 c;
+     c.x = max(a.x,b.x);
+     c.y = min(b.y,a.y);
+     if (c.x > c.y) return inf;
+     if (d.x != inf) return inf;
+     if (a.x < b.x) {
+        interMat = vec3(1.,0.,0.5+.5*cos(3.5*uTime));
+        interSpec = vec4(interMat, 40.);
+        interSphere = s2; 
+        interRef = true;
+     } else {
+        interMat = vec3(0.7+.3*cos(3.*uTime),0.5+0.5*sin(2.5*uTime),1.);
+        interSpec = vec4(interMat, 40.);
+        interSphere = s1; 
+        interRef = false;
+     }
+     return c.x;
+   }
+
+   void updateScene() {
+      float radius = 0.2;
+      sphere[0] = vec4(-sin(uTime)*.5,0.8,-1.5 + .5*cos(uTime),radius);
+      sphere[1] = vec4(.5*sin(uTime), -0.5, -1.5 -.5*cos(uTime), .2);
+      sReflect[0] = false;
+      sReflect[1] = true;
+      material[0] = vec3(1.,1.,1.);
+      material[1] = vec3(.3,1.0,0.);
+      specs[0] = vec4(material[0],80.);
+      specs[1] = vec4(material[1],50.);
+      vec2 c = vec2(0.,0.);
+      Ldir[0] = normalize(vec3(2.*cos(uTime/4.),+0.3-2.*abs(sin(uTime/4.)),-0.5));
+      Lrgb[0] = vec3(.3,0.3,0.);
+      Lrgb[1] = vec3(1.,.1,.0);
+      Ldir[1] = normalize(vec3(1., 1., 1.));
+      //Ldir[1] = vec3(0.,0.,1.);
+   }
+
+   vec3 normal;
+   float t;
+   vec3 mat;
+   vec4 spec;
+   vec3 reflectW() {
+      return 2.*normal * dot(normal, -W) + W;
+      //fact *= .8;
+   }
+   vec3 shade() {
+      vec3 color = mat / 5. ;
+      float tt = inf;
+      for (int j = 0; j < 1; j++) {
+        tt = inf;
+        for (int i = 0; i < count; i++) {
+          float s = raySphere(V + .001*normal, -Ldir[j], sphere[i]); 
+          tt = min(s, tt);
+        }
+        tt = min(traceUnionThree(V+.001*normal, -Ldir[j], weirdSphere[0], weirdSphere[1],weirdSphere[2]),tt);
+        vec3 r = reflectW();
+        if (tt == inf) {
+          color = min(color +  Lrgb[j] * (mat * max(0., dot(normal, -Ldir[j]))
+            + spec.rgb * pow(max(0.,dot(-Ldir[j], r)), spec.w/3.) // phong
+            + spec.rgb * pow(max(0.,dot(normal, normalize(-W - Ldir[j]))),spec.w)// blinn
+            ),1.0);
+        }
+      }
+      return color;
+   }
+   vec4 walls[6]; 
+   vec4 wallSpecs[6];
+   bool wallReflects[6];
+   vec3 wallMats[6];
+   vec3 wNormals[6];
+
+   bool reflect = false;
+   vec3 color = vec3(0.1,0.1,0.1);
+   float rayTracePlane(vec3 v, vec3 w, vec4 wall) {
+     float a = dot(wall.xyz, w);
+     float b = -wall.w - dot(wall.xyz, v);
+     if (abs(a) < 1e-9) return inf;
+     float s = b / a;
+     return (s<0.)?inf:s;
+   }
+
+   void makeWalls() {
+      float side = 5.0;
+      walls[0] = vec4(0.,0.,1.,-side/2.);
+      wNormals[0] = -normalize(walls[0].xyz );
+      wallReflects[0] = false;
+      wallSpecs[0] = vec4(1.,0.,0.,100.);
+      wallMats[0] = vec3(1.,1.,1.)/2.;
+
+      walls[1] = vec4(0.,0.,1.,side/2.);
+      wNormals[1] = walls[1].xyz;
+      wallSpecs[1] = vec4(1.,0.,0.,100.);
+      wallReflects[1] = false;
+      wallMats[1] = vec3(1.,0.3,0.)/1.;
+
+      walls[2] = vec4(0.,1.,0.,side / 2.);
+      wNormals[2] = walls[2].xyz;
+      wallSpecs[2] = vec4(.1,0.,0.,10.);
+      wallReflects[2] = false;
+      wallMats[2] = vec3(0.3,0.2,.8)/1.;
+
+      walls[3] = vec4(0.,1.,0.,-side/2.);
+      wNormals[3] = -walls[3].xyz;
+      wallReflects[3] = false;
+      wallSpecs[3] = vec4(1.,0.,0.,1.);
+      wallMats[3] = vec3(1.,1.,1.)/5.;
+
+      walls[4] = vec4(1.,0.,0.2,side/2.);
+      wNormals[4] = normalize(walls[4].xyz); 
+      wallReflects[4] = true;
+      wallSpecs[4] = vec4(1.,0.,0.,10.);
+      wallMats[4] = vec3(0.,0.,.8)/1.;
+
+      walls[5] = vec4(1.,0.,0.2,-side/2.);
+      wNormals[5] = -walls[5].xyz ;
+      wallReflects[5] = false;
+      wallSpecs[5] = vec4(1.,0.,0.,10.);
+      wallMats[5] = vec3(1.,1.,1.)/5.;
+   }
+
+   void main(void) {
+      V = vec3(-uCursor.x , -uCursor.y , 1.);
+      W = normalize(vec3(vPosition.x, vPosition.y, 0.)-V);
+      updateScene();
+      makeWalls();
+      makeWeirdSpheres();
+      color = vec3(.0,.0,.0);
+      normal = vec3(1.,0.,0.);
+      float t = inf;
+      for (int rr = 0; rr < 2; rr++) {
+        t = inf;
+        reflect = false;
+        for (int i = 0; i < count; i++) {
+           float tt = raySphere(V, W, sphere[i]);
+           if (tt < t) {
+              t = tt;
+              mat = material[i];
+              spec = specs[i];
+              normal = normalize(V + t * W - sphere[i].xyz);
+              reflect = sReflect[i];
+           }
+        }
+        float tt = traceUnionThree(V, W, weirdSphere[0], weirdSphere[1], weirdSphere[2]);
+        if (tt < t) {
+            t = tt;
+            mat = interMat;
+            spec = interSpec;
+            normal = normalize(V + t * W - interSphere.xyz);
+            reflect = interRef;
+        }
+        
+        for (int i = 0; i < 6; i++) {
+           float tt = rayTracePlane(V,W,walls[i]);
+           if (tt < t) {
+                t = tt;
+                mat = wallMats[i];
+                spec = wallSpecs[i];
+                reflect = wallReflects[i];
+                //reflect = false;
+                normal = wNormals[i];
+           }
+        }
+        if (t != inf) {
+          V = V + t * W;
+          color += shade()*fact; 
+          fact *= .5;
+          if (reflect) {W = reflectW(); V = V + 0.001 * normal ;continue;}
+          else {
+            break;
+          }
+        } else break;
+      }
+      gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
+   }
+</script>
+
+<script>
+start_gl('canvas1', document.getElementById('my_vertex_shader'  ).innerHTML,
+                    document.getElementById('my_fragment_shader').innerHTML);
+</script>
+
