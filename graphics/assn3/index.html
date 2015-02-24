@@ -50,9 +50,9 @@
    float fact = 0.8;
    vec4 weirdSphere[3];
    void makeWeirdSpheres() {
-      weirdSphere[0] = vec4(0.+.1*sin(uTime),0.,-1.+.1*cos(uTime),.4);
+      weirdSphere[0] = vec4(0.+.1*sin(2.1*uTime),0.,-1.+.1*cos(2.1*uTime),.4);
       weirdSphere[1] = vec4(0.+.1*sin(uTime),0.,-1.1+.1*cos(uTime),.3+.1*cos(uTime));
-      weirdSphere[2] = vec4(0.-.0*sin(uTime),-0.0+.1*sin(uTime),-1.1-.1*cos(uTime),.1+.1*sin(uTime));
+      weirdSphere[2] = vec4(0.-.1*sin(uTime),-0.0+.1*sin(uTime),-1.1-.1*cos(uTime),.1+.2*sin(uTime));
    }
    vec2 raySphere2(vec3 V, vec3 W, vec4 S) {
       vec3 vMinusS = V - S.xyz;
@@ -112,7 +112,7 @@
      if (c.x > c.y) return inf;
      if (d.x != inf) return inf;
      if (a.x < b.x) {
-        interMat = vec3(1.,0.,0.5+.5*cos(3.5*uTime));
+        interMat = vec3(0.7+.3*cos(3.*uTime),0.5+0.5*sin(2.5*uTime),1.);
         interSpec = vec4(interMat, 40.);
         interSphere = s2; 
         interRef = true;
@@ -129,7 +129,7 @@
       float radius = 0.2;
       sphere[0] = vec4(-sin(uTime)*.5,0.8,-1.5 + .5*cos(uTime),radius);
       sphere[1] = vec4(.5*sin(uTime), -0.5, -1.5 -.5*cos(uTime), .2);
-      sReflect[0] = false;
+      sReflect[0] = true;
       sReflect[1] = true;
       material[0] = vec3(1.,1.,1.);
       material[1] = vec3(.3,1.0,0.);
@@ -199,7 +199,7 @@
       wNormals[1] = walls[1].xyz;
       wallSpecs[1] = vec4(1.,0.,0.,100.);
       wallReflects[1] = false;
-      wallMats[1] = vec3(1.,0.3,0.)/1.;
+      wallMats[1] = vec3(1.,0.1,0.5)/1.;
 
       walls[2] = vec4(0.,1.,0.,side / 2.);
       wNormals[2] = walls[2].xyz;
@@ -213,7 +213,7 @@
       wallSpecs[3] = vec4(1.,0.,0.,1.);
       wallMats[3] = vec3(1.,1.,1.)/5.;
 
-      walls[4] = vec4(1.,0.,0.2,side/2.);
+      walls[4] = vec4(1.,0.,0.4,side/2.);
       wNormals[4] = normalize(walls[4].xyz); 
       wallReflects[4] = true;
       wallSpecs[4] = vec4(1.,0.,0.,10.);
@@ -223,11 +223,11 @@
       wNormals[5] = -walls[5].xyz ;
       wallReflects[5] = false;
       wallSpecs[5] = vec4(1.,0.,0.,10.);
-      wallMats[5] = vec3(1.,1.,1.)/5.;
+      wallMats[5] = vec3(1.,5.,1.)/5.;
    }
 
    void main(void) {
-      V = vec3(-uCursor.x , -uCursor.y , 1.);
+      V = vec3(-uCursor.x *2. , -uCursor.y *2., 1.);
       W = normalize(vec3(vPosition.x, vPosition.y, 0.)-V);
       updateScene();
       makeWalls();
@@ -235,7 +235,7 @@
       color = vec3(.0,.0,.0);
       normal = vec3(1.,0.,0.);
       float t = inf;
-      for (int rr = 0; rr < 2; rr++) {
+      for (int rr = 0; rr < 3; rr++) {
         t = inf;
         reflect = false;
         for (int i = 0; i < count; i++) {
