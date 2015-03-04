@@ -64,7 +64,7 @@ float fractal(vec3 P) {
 }
 
 float turbulance(vec3 P) {
-  const int n = 2;
+  const int n = 3;
   float r = 0.;
   float p = 1.;
   for (int i = 0; i < n; i++) {
@@ -76,7 +76,17 @@ float turbulance(vec3 P) {
    uniform float uTime;
    uniform vec3  uCursor;
    vec3 V, W;
-   //uniform 
+   uniform vec4 uWalls[6];
+   uniform vec3 uwNormals[6];
+   uniform vec3 uCubeAnchor;
+   uniform vec3 uCubeDir1;
+   uniform vec3 uCubeDir2;
+   uniform vec3 uCubeDir3;
+   uniform float uCubeSideLength;
+   uniform vec3 uCubeMats[6];
+   uniform vec4 uCubeSpecs[6]; 
+   uniform vec4 uSphere[2];
+   uniform float uRefraction;
    varying vec3  vPosition;
 
    vec3 Lrgb;
@@ -92,10 +102,17 @@ float turbulance(vec3 P) {
       float d = b * b - 4. * c;
       if (d < 0.) return inf;
       d = sqrt(d);
-      if (- d - b < -1e-9) {
-        return inf;
-      }
       return (-b - d) / 2.;
+   }
+   float raySpherePlus(vec3 V, vec3 W, vec4 S) {
+      // YOU NEED TO COMPUTE t, BY SETTING UP AND THEN SOLVING A QUADRATIC EQUATION.
+      vec3 vMinusS = V - S.xyz;
+      float b = 2. * dot(vMinusS, W);
+      float c = dot(vMinusS, vMinusS) - S.w * S.w;
+      float d = b * b - 4. * c;
+      if (d < 0.) return inf;
+      d = sqrt(d);
+      return (-b + d) / 2.;
    }
    float fact = 0.8;
    vec2 raySphere2(vec3 V, vec3 W, vec4 S) {
@@ -119,11 +136,61 @@ float turbulance(vec3 P) {
      return r;
    }
 
+  // refract off a sphere
+  vec3 refractW;
+  vec3 refractV;
+  vec3 refractNormal;
+  // return the entry point of t, inf if no entry
+  float refractSphere(vec3 V, vec3 W, vec4 s) {
+      vec3 vMinusS = V - s.xyz;
+     float t = inf;
+      float b = 2. * dot(vMinusS, W);
+      float c = dot(vMinusS, vMinusS) - s.w * s.w;
+      float d = b * b - 4. * c;
+      if (d < 0.) return inf;
+      d = sqrt(d);
+      t = (-b - d) / 2.;
+     float r = t;
+     V = V + W * r;
+     refractNormal = normalize(V - s.xyz);
+     //vec3 tmp = (W - dot(W, refractNormal) * refractNormal) / uRefraction;
+     W = refract(W, refractNormal, 1./uRefraction);
+     V = V + W * 0.001;
+     t = raySpherePlus(V, W, s); 
+     if (t == inf) return inf;
+     V = V + W * t;
+     refractW = refract(W, normalize(s.xyz - V), uRefraction);
+     refractV = V + refractW * 0.001;
+     return r;
+  }
+
+   vec3 interMat;
+   vec4 interSpec;
+   vec4 interSphere;
+   float traceUnionTwo(vec3 V, vec3 W, vec4 s1, vec4 s2) {
+     float r = 0.;
+     vec2 a = raySphere2(V,W,s1);
+     vec2 b = raySphere2(V,W,s2);
+     vec2 c;
+     c.x = max(a.x,b.x);
+     c.y = min(b.y,a.y);
+     if (c.x > c.y) return inf;
+     if (a.x < b.x) {
+        interMat = vec3(1.,0.,0.5+.5*cos(3.5*uTime));
+        interSpec = vec4(interMat, 40.);
+        interSphere = s2; 
+     } else {
+        interMat = vec3(0.7+.3*cos(3.*uTime),0.5+0.5*sin(2.5*uTime),1.);
+        interSpec = vec4(interMat, 40.);
+        interSphere = s1; 
+     }
+     return c.x;
+   }
 
    void updateScene() {
       //Ldir = normalize(vec3(2.*cos(uTime/4.),+0.3-2.*abs(sin(uTime/4.)),-0.5));
-      Ldir = vec3(0.,0.,-1.);
-      Lrgb = vec3(.3,0.3,0.);
+      Ldir = normalize(vec3(-1.,-1.,-1.));
+      Lrgb = vec3(.3,0.3,0.3);
    }
 
    vec3 normal;
@@ -146,11 +213,6 @@ float turbulance(vec3 P) {
       }
       return color ;
    }
-   vec4 walls[12]; 
-   vec4 wallSpecs[12];
-   bool wallReflects[12];
-   vec3 wallMats[12];
-   vec3 wNormals[12];
 
    bool reflect = false;
 
@@ -164,104 +226,87 @@ float turbulance(vec3 P) {
      return s;
    }
 
-   vec3 cubeAnchor;
-   float cubeSideLength;
-   vec3 cDir1;
-   vec3 cDir2;
-   vec3 cDir3;
-   float dir2Turns[6]; // {1.0, -1.0, 1.0, -1.0, 1.0, -1.0};
-   float dir3Turns[6]; // {1.0, -1.0, 1.0, -1.0, 1.0, -1.0};
-    
-   
-   void makeCube() {
-      cubeAnchor = vec3(-2.,-2.,-5.);
-      float alpha = uTime;
-      float beta = .0;
-      vec3 cubeDir1 = vec3(1.,0.,0.);//normalize(vec3(sin(alpha),-cos(alpha)*sin(beta),-cos(alpha)*cos(beta)));
-      vec3 cubeDir2 = vec3(0.,1.,0.);//normalize(vec3(cos(alpha),sin(alpha)*sin(beta),sin(alpha)*cos(beta)));
-      cDir1 = cubeDir1;
-      cDir2 = cubeDir2;
-      cubeSideLength = 4.0;
-      cDir3 = -cross(cubeDir1, cubeDir2);
-      vec3 cubeDir3;
-      vec3 atmp = cubeAnchor;
-      /*float turns[6];
-      turns[0] = 1.0;
-      turns[1] = -1.0;
-      turns[2] = 1.0;
-      turns[3] = -1.;
-      turns[4] = 1.;
-      turns[5] = 1.;*/
-      float dir = 1.0;
-      for (int i = 0; i < 6; i++) {
-        cubeDir3 = cross(cubeDir1, cubeDir2);   
-        walls[i].xyz = -cubeDir3;
-        walls[i].w = -dot(walls[i].xyz, atmp);
-        wNormals[i] = -walls[i].xyz;
-        wallMats[i] = vec3(.8,.8,.8);
-        wallSpecs[i] = vec4(1.,1.,1.,10.);
-        atmp = atmp + cubeDir1 * cubeSideLength;
-        cubeDir1 = dir * cubeDir2;
-        cubeDir2 = dir * cubeDir3;
-        dir *= -1.0;
-      }
-   }
-
    vec3 tcMat;
    vec4 tcSpec;
    vec3 tcNormal;
    float traceCube(vec3 v, vec3 w) {
       for (int i = 0; i < 6; i++) {
-         float tt = rayTracePlane(v,w,walls[i]);
+         float tt = rayTracePlane(v,w,uWalls[i]);
          if (tt == inf) continue;
-         vec3 tmp = v + w * tt - wNormals[i] * 0.0001;
+         vec3 tmp = v + w * tt - uwNormals[i] * 0.0001;
          int c = 0;
          for (int j = 0; j < 6; j++) {
-            if (dot(tmp,walls[j].xyz)+walls[j].w > 0.) c++;
+            if (dot(tmp,uWalls[j].xyz)+uWalls[j].w > 0.) c++;
             else break;
          }
          if (c == 6) {
-            tcMat = wallMats[i];
-            tcSpec = wallSpecs[i];
-            tcNormal = wNormals[i];
+            tcMat = uCubeMats[i];
+            tcSpec = uCubeSpecs[i];
+            tcNormal = uwNormals[i];
             return tt;
          }
       }
       return inf;
    }
 
-   vec3 shadeCube() {
-      vec3 color = mat / 5.;
-      //float gsize = cubeSideLength / 8.;
-      //vec3 s = V - cubeAnchor;
- //     int ind = int(mod(floor(dot(s,cDir1) / gsize) + floor(dot(s,cDir2) / gsize)
-  //            + floor(dot(s,cDir3) / gsize),2.));
-   //   if (ind == 0) color = mat; 
-//      color = color * (1.+turbulance(V));
+   vec3 hsv2rgb(vec3 c)
+   {
+     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+   }
+   vec3 shadeCube(vec3 V, vec3 W) {
+      vec3 color = mat / 4.;
+      float gsize = uCubeSideLength / 4.;
+      vec3 s = V - uCubeAnchor;
+      float ind1 = (mod((dot(s,uCubeDir1)/gsize), 2.));
+      float ind2 = (mod((dot(s,uCubeDir2)/gsize), 2.));
+      float ind3 = (mod((dot(s,uCubeDir3)/gsize), 2.));
+      int ind = int(mod(floor(dot(s,uCubeDir1) / gsize) + floor(dot(s,uCubeDir2) / gsize)
+              + floor(dot(s,uCubeDir3) / gsize),2.)) ;
+     if (ind == 0) {
+       color = hsv2rgb(vec3((ind1+ind3) / 8., ind2 / 10. + 0.8,1.0));
+     }
+
+     //if (ind1 * ind2 * ind3 != 1) color = mat / 2.;
+      color = color * (1.+turbulance(s));
 
       
       float tt = inf;
       for (int j = 0; j < 1; j++) {
-   //     vec3 r = reflectW();
+        vec3 r = reflectW();
         color = min(color +  Lrgb * (mat * max(0., dot(normal, -Ldir))
-   //         + spec.rgb * pow(max(0.,dot(-Ldir, r)), spec.w/3.) // phong
-    //        + spec.rgb * pow(max(0.,dot(normal, normalize(-W - Ldir))),spec.w)// blinn
+            + spec.rgb * pow(max(0.,dot(-Ldir, r)), spec.w/3.) // phong
+            //+ spec.rgb * pow(max(0.,dot(normal, normalize(-W - Ldir))),spec.w)// blinn
         ),1.0);
       }
-      return color ;
+      return color *.7;
    }
 
    void main(void) {
-      //V = vec3(-uCursor.x *2. , -uCursor.y *2., 1.);
+     // V = vec3(-uCursor.x *2. , -uCursor.y *2., 1.);
+      //discard;
+      //gl_FragColor = vec4(0.,0.,0.,1.);
+      //return;
       V = vec3(0.,0.,1.);
       W = normalize(vec3(vPosition.x, vPosition.y, 0.)-V);
       updateScene();
-      //makeWalls();
-      makeCube();
       vec3 color;
       color = vec3(.0,.0,.0);
       normal = vec3(1.,0.,0.);
       float t = inf;
+      t = refractSphere(V,W,uSphere[0]);
+      float fact = 1.;
+      if (t != inf) {
+        V = V + W * t;
+        normal = refractNormal;
+        mat = vec3(.5,.8,.2);
+        spec = vec4(mat,100.);
+        color += shade() * .5;
+        V = refractV;
+        W = refractW;
+        fact = .5;
+      }
       t = traceCube(V,W);
       if (t != inf ) {
           V = V + t * W;
@@ -269,16 +314,14 @@ float turbulance(vec3 P) {
           V = V + normal * 0.001;
           mat = tcMat;
           spec = tcSpec;
-          color = shadeCube();
+          color += shadeCube(V, W) * fact;
           gl_FragColor = vec4(sqrt(color),1.);
           return;
       }
-     //discard;
 //      color = vec3(0.3,.8,.4) * (0.5 + .5 * turbulance(W+(uTime)));
-      float grid = .25;
-      int inds = int(mod(floor(vPosition.x / grid) + (floor(vPosition.y / grid)), 2.0));
-      if (inds == 0) color = vec3(.1,.1,.1);
-      else color = vec3(.6,.6,.6);
+      t = rayTracePlane(V,W, vec4(0.,0.,1.,-20.));
+      V = V + t*W;
+      color += hsv2rgb(vec3(fractal(V/100.+uTime/50.)*.5 + .8, 1.,1.));
     //  color = color * (0.2 + .8 * turbulance(2.*vec3(vPosition.x, vPosition.y ,0.)));
       gl_FragColor = vec4(sqrt(color), 1.); // Do Gamma correction.
    }
