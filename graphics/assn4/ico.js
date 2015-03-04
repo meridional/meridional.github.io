@@ -86,6 +86,9 @@ function shuffle(array) {
 
 function init_shape(gl) {
   var phi = (Math.sqrt(5) + 1) / 2;
+  var center = new Vector3();
+  var mult = 5;
+  center.set(gl.cursor.x * mult, mult * gl.cursor.y, 0);
   var fpoints = ([
     [[phi,1,0],[phi,-1,0],[1,0,phi]],
     [[phi,1,0],[phi,-1,0],[1,0,-phi]],
@@ -109,9 +112,12 @@ function init_shape(gl) {
     [[-phi,-1,0],[-1,0,-phi],[0,-phi,-1]],
   ]).map(function(triag){
     return triag.map(function(p) {
-       var r = Math.sqrt(p[0]*p[0] + p[2] * p[2]);
+       var r = Math.sqrt(p[0]*p[0] + p[2] * p[2] + p[1] * p[1]);
        var a = Math.atan2(p[0],p[2]) + gl.time/2;
-       p[0] = r * Math.cos(a);p[2] = r*Math.sin(a) ;
+       var b = Math.atan2(p[1],Math.sqrt(p[0]*p[0]+p[2]*p[2])) //+ gl.time / 4;
+       p[0] = r * Math.cos(a) * Math.cos(b) + center.x;
+       p[1] = -r * Math.sin(b)  + center.y;
+       p[2] = r * Math.sin(a) * Math.cos(b) +center.z;
        return p;
     });
   });
@@ -131,7 +137,7 @@ function init_shape(gl) {
     dir2.z = fpoints[i][2][2] - fpoints[i][1][2];
     var n = vNormalize(crossProduct(dir1, dir2));
     var w = -dotProduct(n, p);
-    if (w < 0) {
+    if (dotProduct(n, center) + w < 0) {
       n.negate();
       w = w * -1;
     }
