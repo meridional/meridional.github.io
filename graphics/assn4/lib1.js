@@ -65,7 +65,7 @@ function start_gl(canvas_id, vertexShader, fragmentShader) {
 function initCube(gl) {
       gl.cubeAnchor = new Vector3();
       gl.cubeAnchor.set(-2,2,-10);
-      gl.cubeSideLength = 4.0;
+      gl.cubeSideLength = 4.5;
       gl.cubeDir1 = new Vector3()
       gl.cubeDir1.set(1,0,0);
       gl.cubeDir2 = new Vector3()
