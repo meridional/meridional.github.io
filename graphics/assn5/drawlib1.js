@@ -18,11 +18,11 @@
      }
    }
 
-   function Matrix4() {
+   function Mat4() {
      this.data = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
    }
 
-   Matrix4.prototype = {
+   Mat4.prototype = {
      clear: function() {
        this.data = this.data.map(function (x) { return x.map(function(y) {return 0;})});
        this.data[3][3] = 1;
@@ -118,10 +118,11 @@
       canvas.setCursor = function(x, y, z) {
          var r = this.getBoundingClientRect();
 	 this.cursor.set(x - r.left, y - r.top, z);
-      }
+      };
       canvas.cursor = new Vec(0, 0, 0);
+      console.log(canvas.cursor);
       canvas.onmousedown = function(e) { this.setCursor(e.clientX, e.clientY, 1); }
-      canvas.onmousemove = function(e) { this.setCursor(e.clientX, e.clientY   ); }
+      canvas.onmousemove = function(e) { this.setCursor(e.clientX, e.clientY, 0); }
       canvas.onmouseup   = function(e) { this.setCursor(e.clientX, e.clientY, 0); }
       canvases.push(canvas);
       return canvas;

@@ -1,1 +1,35 @@
+<head>
+</head>
+<body>
+<table>
+  <tr>
+    <td><canvas style="background-color:" id=canvas1 width=600 height=100></canvas></td>
+    <td width=50></td>
+    <td valign=top>
+      <b> Quick Sort visualization</b> 
+      <p> <span style="color:red">Red</span> is the pivot.</p>
+      <p><span style="color:black">Blacks</span> are the active partition. </p>
+      <p>
+      <span style="color:AAAAAA">Grays</span> are the rest.
+      </p>
+      <p>
+      All the lines here are transformed from a pair of vanilla points: <code>(0,-0.1),(0,0.1)</code>
+      via the rotation and translatioin matrices.
+      </p>
+      <p>
+      <b>Acknowledgement:</b>
+      This is a reimplementation of <a href="http://bl.ocks.org/mbostock/e1e1e7e2c360bec054ba">link</a> using 
+      canvas and the "drawlib".
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td><canvas style="background-color:" id=canvas2 width=600 height=600></canvas></td>
+    <td width=50></td>
+    <td valign=top>
+    </td>
+  </tr>
+</table>
 <script src="drawlib1.js"></script>
+<script src="quicksort.js"></script>
+</body>
