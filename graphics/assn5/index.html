@@ -1,13 +1,16 @@
+<head>
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+</head>
 <body>
-<table>
+<table class="pure-table pure-table-bordered pure-table-horizontal">
   <tr>
-    <td><canvas style="background-color:" id=canvas1 width=600 height=100></canvas>
+    <td><canvas style="background-color:" id=canvas1 width=800 height=200></canvas>
     </td>
     <td width=50></td>
     <td valign=top>
       <b> Quick Sort visualization</b> 
       <p>
-            <button id=qsbutton onclick="qsbegin()">Click me to start</button>
+            <button id=qsbutton class="pure-button pure-button-primary" onclick="qsbegin()">Click me to start</button>
       </p>
       <p> <span style="color:red">Red</span> is the pivot.</p>
       <p><span style="color:black">Blacks</span> are the active partition. </p>
@@ -25,16 +28,19 @@
       </p>
     </td>
   </tr>
-  <tr><td height=50></td></tr>
+  <!--<tr><td height=50></td></tr>-->
   <tr>
     <td>
-      <canvas id=canvas2 width=600 height=600></canvas>
+      <canvas id=canvas2 width=800 height=800></canvas>
     </td>
     <td width=50></td>
-    <td valign="top">hello</td>
+    <td valign="top">
+      <b>Dragon Curve</b>
+      <p> <button class="pure-button pure-button-primary" id=dragonButton onclick="dragon()">Click me to start</button></p>
+    </td>
   </tr>
 </table>
 <script src="drawlib1.js"></script>
 <script src="quicksort.js"></script>
-<script src="clock.js"></script>
+<script src="dragon.js"></script>
 </body>

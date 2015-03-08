@@ -149,7 +149,7 @@ function tick() {
   if (canvases[i].update !== undefined) {
     var canvas = canvases[i];
     var g = canvas.getContext('2d');
-    g.clearRect(0, 0, canvas.width, canvas.height);
+//    g.clearRect(0, 0, canvas.width, canvas.height);
     canvas.update(g);
   }
   setTimeout(tick, 1000 / 60);

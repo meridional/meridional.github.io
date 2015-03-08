@@ -104,6 +104,7 @@ function qsbegin() {
   var speed = 0.05;
   qscanvas.update = function(g) {
     if (actions.length > 0) {
+      g.clearRect(0, 0, qscanvas.width, qscanvas.height);
       var action = actions.pop();
       switch (action.type){ 
         case "swap": {
@@ -183,6 +184,8 @@ function qsbegin() {
       lines[seq++].color = activeColor;
       lines[seq++].color = activeColor;
       //lines.map(function (l) {l.color = activeColor;});
+    } else {
+      return;
     }
     lines.map(function(l) {
       g.strokeStyle=l.color;

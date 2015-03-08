@@ -1,19 +1,24 @@
-//function dragon() {
+function dragon() {
+  var button = document.getElementById("dragonButton");
+  button.disabled = true;
   var canvas = initCanvas('canvas2');
 
   var data = [new Vec(0.6,0,0), new Vec(-0.6,0,0)];
 
   var actions = [];
+  var colors = [];
   var shrink = [1.5,1.5,1.5,1.5,1.5,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.3,1.3].reverse();
   for (var i = 0; i < 14; i++) {
     actions.push({type:"roll"});
     actions.push({type:"dup", s:shrink[i]});
     actions.push({type:"shrink", s:shrink[i]});
+    colors[i] = "#" + (Math.floor(255*(20-i)/28)).toString(16) + (Math.floor(255*(i+6)/20)).toString(16) +(Math.floor(255*(i/30))).toString(16); 
   }
 
   canvas.update = function(g) {
     var inRotation = false;
     if (actions.length > 0) {
+      g.clearRect(0,0,canvas.width,canvas.height);
       var a = actions.pop();
       switch (a.type) {
         case "dup": {
@@ -54,11 +59,6 @@
           break;
         }
         case "roll": {
-          /*var b = Math.floor(data.length / 2);
-          var roll = new Mat4().rotateZ(-Math.PI/2);
-          for (var i = b+1; i < data.length; i++) {
-            data[i] = roll.transform(data[i]);
-          }*/
           var steps = 60;
           var rollMat = new Mat4().rotateZ(-Math.PI/2/steps);
           for (var i = 0; i < steps; i++) {
@@ -76,17 +76,37 @@
           break;
         }
       }
+    } else {
+      return;
     }
-    for (var i = 0; i < data.length-1; i++) {
-      var p = viewPortTransformation(data[i+1], canvas);
-      var b = viewPortTransformation(data[i], canvas); 
-      g.lineWidth = .5;
-      if (inRotation && i > data.length / 2-1) g.strokeStyle = "#FF0000";
-      else g.strokeStyle = "#000000";
-      g.beginPath();
-      g.moveTo(b.data[0], b.data[1]);
-      g.lineTo(p.data[0], p.data[1]);
-      g.stroke();
+    //g.beginPath();
+    //g.strokeStyle = "#000000";
+    for (var i = 0; i < data.length - 1;) {
+      for (var j = 0; Math.pow(2,j) < data.length; j++) {
+        g.beginPath();
+        g.strokeStyle = colors[j];
+        for ( ; i < Math.pow(2,j); i++) {
+          var p = viewPortTransformation(data[i+1], canvas);
+          var b = viewPortTransformation(data[i], canvas); 
+          g.moveTo(b.data[0], b.data[1]);
+          g.lineTo(p.data[0], p.data[1]);
+        }
+        g.stroke();
+      }
     }
+    //for (var i = 0; i < data.length-1; i++) {
+      //var p = viewPortTransformation(data[i+1], canvas);
+      //var b = viewPortTransformation(data[i], canvas); 
+      //g.lineWidth = .5;
+      //if (inRotation && i > data.length / 2-1) {
+        //g.stroke();
+        //g.strokeStyle = "#FF0000";
+        //inRotation = false;
+        //g.beginPath();
+      //}
+      //g.moveTo(b.data[0], b.data[1]);
+      //g.lineTo(p.data[0], p.data[1]);
+    //}
+    //g.stroke();
   }
-//}
+}
