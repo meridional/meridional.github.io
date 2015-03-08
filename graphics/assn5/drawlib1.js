@@ -111,6 +111,13 @@
      }
    }
 
+function viewPortTransformation(v,g) {
+  var x = new Vec();
+  x.data[0] = g.width/2+v.data[0]*(g.width/2);
+  x.data[1] = g.height/2-v.data[1]*(g.width/2);
+  return x;
+}
+
    var startTime = (new Date()).getTime() / 1000, time = startTime;
    var canvases = [];
    function initCanvas(id) {

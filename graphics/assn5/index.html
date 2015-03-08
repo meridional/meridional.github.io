@@ -3,10 +3,14 @@
 <body>
 <table>
   <tr>
-    <td><canvas style="background-color:" id=canvas1 width=600 height=100></canvas></td>
+    <td><canvas style="background-color:" id=canvas1 width=600 height=100></canvas>
+    </td>
     <td width=50></td>
     <td valign=top>
       <b> Quick Sort visualization</b> 
+      <p>
+            <button id=qsbutton onclick="qsbegin()">Click me to start</button>
+      </p>
       <p> <span style="color:red">Red</span> is the pivot.</p>
       <p><span style="color:black">Blacks</span> are the active partition. </p>
       <p>
@@ -23,13 +27,16 @@
       </p>
     </td>
   </tr>
+  <tr><td height=100></td></tr>
   <tr>
     <td><canvas style="background-color:" id=canvas2 width=600 height=600></canvas></td>
     <td width=50></td>
     <td valign=top>
+      <b>Dragon curve</b>
     </td>
   </tr>
 </table>
 <script src="drawlib1.js"></script>
 <script src="quicksort.js"></script>
+<script src="dragon.js"></script>
 </body>
