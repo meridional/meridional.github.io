@@ -101,7 +101,7 @@ function qsbegin() {
       trans.transform(angle.transform(vanilla[1]))];
   }
 
-  var speed = 0.05;
+  var speed = 0.02;
   qscanvas.update = function(g) {
     if (actions.length > 0) {
       g.clearRect(0, 0, qscanvas.width, qscanvas.height);
