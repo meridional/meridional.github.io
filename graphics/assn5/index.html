@@ -1,56 +1,65 @@
 <head>
-<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 </head>
 <body>
-<table class="pure-table pure-table-bordered pure-table-horizontal">
-  <tr>
-    <td><canvas style="background-color:" id=canvas1 width=800 height=200></canvas>
-    </td>
-    <td width=50></td>
-    <td valign=top>
-      <b> Quick Sort visualization</b> 
-      <p>
-            <button id=qsbutton class="pure-button pure-button-primary" onclick="qsbegin()">Click me to start</button>
-      </p>
-      <p> <span style="color:red">Red</span> is the pivot.</p>
-      <p><span style="color:black">Blacks</span> are the active partition. </p>
-      <p>
-      <span style="color:AAAAAA">Grays</span> are the rest.
-      </p>
-      <p>
-      All the lines here are transformed from a pair of vanilla points: <code>(0,0),(0,0.1)</code>
-      via the rotation and translatioin matrices.
-      </p>
-      <p>
-      <b>Acknowledgement:</b>
-      This is a reimplementation of <a href="http://bl.ocks.org/mbostock/e1e1e7e2c360bec054ba">link</a> using 
-      canvas and the "drawlib".
-      </p>
-    </td>
-  </tr>
-  <!--<tr><td height=50></td></tr>-->
-  <tr>
-    <td>
-      <canvas id=canvas2 width=800 height=800></canvas>
-    </td>
-    <td width=50></td>
-    <td valign="top">
-      <b><a href="http://mathworld.wolfram.com/DragonCurve.html">Dragon Curve</a></b>
-      <p> <button class="pure-button pure-button-primary" id=dragonButton onclick="dragon()">Click me to start</button></p>
-      <p>There seems to be many ways to draw the dragon curve. The algorithm that I employed is due to
-      <a href="https://bentrubewriter.wordpress.com/2012/04/25/fractals-you-can-draw-the-dragon-curve-or-the-jurassic-fractal/">Ben Trube</a>.
-      <p>
-      Basic idea is:
-      </p>
-      <ul>
-        <li>Start with one line segment</li>
-        <li>Make one copy of the current shape and rotate the copy 90 degress about its end</li>
-        <li>Repeat last step until your browser crashes :)</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-<script src="drawlib1.js"></script>
-<script src="quicksort.js"></script>
-<script src="dragon.js"></script>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <table class="table">
+        <tr>
+          <td><canvas style="background-color:" id=canvas1 width=600 height=200></canvas>
+          </td>
+          <td width=50></td>
+          <td valign=top>
+            <div class="modal-header">
+              <h4>Quick Sort visualization</h4>
+              <button type="button" id=qsbutton class="btn btn-primary" onclick="qsbegin()">Sort!</button>
+            </div>
+            <div class="modal-body">
+              <ul>
+                <li><p><span style="color:red">Red</span> is the pivot.</p></li>
+                <li><p><span style="color:black">Blacks</span> are the active partition. </p></li>
+                <li> <p> <span style="color:AAAAAA">Grays</span> are the rest. </p></li>
+              </ul>
+              <p>
+              All the lines here are transformed from a pair of vanilla points: <code>(0,0),(0,0.1)</code>
+              via the rotation and translatioin matrices.
+              </p>
+            </div> 
+            <div class="modal-footer">
+            <b>Acknowledgement:</b> This is a reimplementation of <a href="http://bl.ocks.org/mbostock/e1e1e7e2c360bec054ba">link</a> using 
+            canvas and the "drawlib".
+            </div>
+          </td>
+        </tr>
+        <!--<tr><td height=50></td></tr>-->
+        <tr>
+          <td>
+            <canvas id=canvas2 width=600 height=600></canvas>
+          </td>
+          <td width=50></td>
+          <td valign="top">
+            <div class="modal-header">
+              <h4><a href="http://mathworld.wolfram.com/DragonCurve.html">Dragon Curve</a></h4>
+              <button class="btn btn-primary" id=dragonButton onclick="dragon()">Start</button>
+            </div>
+            <div class="modal-body">
+              <p>There seems to be many ways to draw the dragon curve. The algorithm that I employed is due to
+              <a href="https://bentrubewriter.wordpress.com/2012/04/25/fractals-you-can-draw-the-dragon-curve-or-the-jurassic-fractal/">Ben Trube</a>.
+              <p>
+              Basic idea is:
+              </p>
+              <ul>
+                <li>Start with one line segment</li>
+                <li>Make one copy of the current shape and rotate the copy 90 degress about its end</li>
+                <li>Repeat last step until your browser crashes :)</li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <script src="drawlib1.js"></script>
+  <script src="quicksort.js"></script>
+  <script src="dragon.js"></script>
 </body>
