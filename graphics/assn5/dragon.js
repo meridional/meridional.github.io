@@ -77,11 +77,11 @@ function dragon() {
         }
       }
     } else {
-      return;
+      g.clearRect(0,0,canvas.width,canvas.height);
     }
-    //g.beginPath();
-    //g.strokeStyle = "#000000";
-    for (var i = 0; i < data.length - 1;) {
+    g.beginPath();
+    g.strokeStyle = "#000000";
+    /*for (var i = 0; i < data.length - 1;) {
       for (var j = 0; Math.pow(2,j) < data.length; j++) {
         g.beginPath();
         g.strokeStyle = colors[j];
@@ -93,20 +93,20 @@ function dragon() {
         }
         g.stroke();
       }
+    }*/
+    for (var i = 0; i < data.length-1; i++) {
+      var p = viewPortTransformation(data[i+1], canvas);
+      var b = viewPortTransformation(data[i], canvas); 
+      g.lineWidth = .5;
+      if (inRotation && i > data.length / 2-1) {
+        g.stroke();
+        g.strokeStyle = "#FF0000";
+        inRotation = false;
+        g.beginPath();
+      }
+      g.moveTo(b.data[0], b.data[1]);
+      g.lineTo(p.data[0], p.data[1]);
     }
-    //for (var i = 0; i < data.length-1; i++) {
-      //var p = viewPortTransformation(data[i+1], canvas);
-      //var b = viewPortTransformation(data[i], canvas); 
-      //g.lineWidth = .5;
-      //if (inRotation && i > data.length / 2-1) {
-        //g.stroke();
-        //g.strokeStyle = "#FF0000";
-        //inRotation = false;
-        //g.beginPath();
-      //}
-      //g.moveTo(b.data[0], b.data[1]);
-      //g.lineTo(p.data[0], p.data[1]);
-    //}
-    //g.stroke();
+    g.stroke();
   }
 }
