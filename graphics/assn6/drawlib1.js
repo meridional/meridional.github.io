@@ -32,7 +32,7 @@ Vec.prototype = {
     var x = this.data[0];
     var y = this.data[1];
     var z = this.data[2];
-    if ((z) < 1e-5) {
+    if ((z) < 1e-9) {
       return new Vec(Infinity,Infinity,Infinity);
     }
     var r = new Vec(f * x / z, f * y / z, f / z);

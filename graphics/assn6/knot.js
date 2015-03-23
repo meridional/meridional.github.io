@@ -32,7 +32,7 @@ function rotMatrixToDirAtPhi(kp, kq, phi) {
     m.data[0][1] = cy[0];
     m.data[1][1] = cy[1];
     m.data[2][1] = cy[2];
-    var rot = compose(m, new Mat4().rotateZ(-phi)) ;
+    var rot = compose(m, new Mat4().rotateZ(phi * kq / kp)) ;
     return rot;
 }
 
@@ -98,8 +98,7 @@ function knot() {
   var c3 = initCanvas('canvas3');
   c3.update = function(g) {
     g.clearRect(0,0,c3.width,c3.height);
-    var tt = compose(compose(new Mat4().translate(0,0,10.), new Mat4().rotateX(time * .2)),
-                     new Mat4().rotateZ(time * .2));
+    var tt = compose(new Mat4().translate(0,0,10.), new Mat4().rotateY(time * .2));
     //var tt = new Mat4().translate(0,0,10.);
     var nnpts = pts.map( function (ps) { return ps.map(function (p) { return tt.transform(p); })});
     g.stokeStyle = 'black';
