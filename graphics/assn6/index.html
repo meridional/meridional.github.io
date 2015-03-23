@@ -1,0 +1,76 @@
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+          tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+          });
+</script>
+<script type="text/javascript" src="math.js"> </script>
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <table class="table">
+        <tr>
+          <td><canvas style="background-color:" id=canvas1 width=600 height=600></canvas>
+          </td>
+          <td width=50></td>
+          <td valign=top>
+            <div class="modal-header">
+              <h4>Möbius strip</h4>
+            </div>
+            <div class="modal-body">
+              $$\left\{
+              \begin{align}
+              x(\phi,t)&=\left(1 + \frac{t}{2}\cos\frac{\phi}{2}\right)\cos \phi\\
+              y(\phi,t)&=\left(1 + \frac{t}{2}\cos\frac{\phi}{2}\right)\sin \phi\\
+              z(\phi,t)&=\frac{t}{2}\sin\frac{\phi}{2}
+              \end{align}\right.
+              $$
+              <p>
+              where $\phi\in[0,2\pi), t\in[-1,1]$.
+              </p>
+            </div> 
+            <div class="modal-footer">
+            </div>
+          </td>
+        </tr>
+        <!--<tr><td height=50></td></tr>-->
+        <tr>
+          <td>
+            <canvas id=canvas2 width=600 height=600></canvas>
+          </td>
+          <td width=50></td>
+          <td valign="top">
+            <div class="modal-header">
+              <h4>3-8 Torus Knot</h4>
+            </div>
+            <div class="modal-body">
+              The curve is parametrized as 
+              $$\left\{
+              \begin{align}
+              x(\phi)&=r\cos(p\phi) \\
+              y(\phi)&=r\sin(p\phi) \\
+              z(\phi)&=-\sin(q\phi)
+              \end{align}\right.
+              $$
+              where
+              $$r=\cos(q\phi)+2,\phi\in[0,2\pi),p=3,q=8.$$
+              Below is a bird's eye view of the ride on the right.
+            </div>
+            <div>
+              <canvas id=canvas3 width=300 height=300></canvas>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <script src="drawlib1.js"></script>
+  <script src="noise.js"></script>
+  <script src="mobius.js"></script>
+  <script src="knot.js"></script>
+</body>
