@@ -213,6 +213,11 @@ function tick() {
 }
 tick();
 
+function drawLine(g, v1, v2) {
+  if (v1.data[0] == Infinity || v2.data[0] == Infinity) return;
+  g.moveTo(v1.data[0], v1.data[1]);
+  g.lineTo(v2.data[0], v2.data[1]);
+}
 function drawPts(canv, pts, f, c, g) {
   // assume pts is a 2 d array
   if (!f) {f = -20.0;}
@@ -229,21 +234,17 @@ function drawPts(canv, pts, f, c, g) {
   if (c) g.strokeStyle = c;
   for (var i = 0; i < li - 1; i++) {
     for (var j = 0; j < lj - 1; j++) {
-      g.moveTo(pxs[i][j].data[0], pxs[i][j].data[1]);
-      g.lineTo(pxs[i+1][j].data[0], pxs[i+1][j].data[1]);
-      g.moveTo(pxs[i][j].data[0], pxs[i][j].data[1]);
-      g.lineTo(pxs[i][j+1].data[0], pxs[i][j+1].data[1]);
+      drawLine(g, pxs[i][j], pxs[i][j+1]);
+      drawLine(g, pxs[i][j], pxs[i+1][j]);
     }
   }
   var i = li - 1;
   for (var j = 0; j < lj - 1; j++) {
-      g.moveTo(pxs[i][j].data[0], pxs[i][j].data[1]);
-      g.lineTo(pxs[i][j+1].data[0], pxs[i][j+1].data[1]);
+      drawLine(g, pxs[i][j], pxs[i][j+1]);
   }
   var j = lj - 1;
   for (var i = 0; i < li - 1; i++) {
-      g.moveTo(pxs[i][j].data[0], pxs[i][j].data[1]);
-      g.lineTo(pxs[i+1][j].data[0], pxs[i+1][j].data[1]);
+      drawLine(g, pxs[i][j], pxs[i+1][j]);
   }
   g.stroke();
 }
