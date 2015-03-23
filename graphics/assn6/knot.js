@@ -13,7 +13,7 @@ function knotPointInSpace(kp, kq, phi) {
                                      -Math.sin(phi * kq));
 }
 
-function rotMatrixToDirAtPhi(kp, kq, phi) {
+function rotMatrixToDirAtPhi(kp, kq, phi, cy) {
     var kc = 2;
     var dir = dirAtPhi(kp, kq, phi).normalize();
     var rxAngle = Math.atan2(dir.data[2], dir.data[0]);
@@ -23,7 +23,9 @@ function rotMatrixToDirAtPhi(kp, kq, phi) {
     m.data[1][2] = dir.data[1];
     m.data[2][2] = dir.data[2];
     var cz = [dir.data[0],dir.data[1],dir.data[2]];
-    var cx = math.cross([0,1,0], cz);
+    var dy = knotPointInSpace(kp, kq, phi).normalize().data;
+    var cy = cy || [dy[0], dy[1], dy[2]];
+    var cx = math.cross(cy, cz);
     cx = math.divide(cx, math.norm(cx, 2));
     m.data[0][0] = cx[0];
     m.data[1][0] = cx[1];
@@ -32,8 +34,7 @@ function rotMatrixToDirAtPhi(kp, kq, phi) {
     m.data[0][1] = cy[0];
     m.data[1][1] = cy[1];
     m.data[2][1] = cy[2];
-    var rot = compose(m, new Mat4().rotateZ(phi * kq / kp)) ;
-    return rot;
+    return m;
 }
 
 function mvMatrixAtPhi(kp, kq, phi) {
@@ -48,7 +49,7 @@ function makeKnot(kp, kq, begin, end, bins1) {
   if (!begin) begin = 0;
   if (!end) end = Math.PI * 2;
   if (!bins1) bins1 = 500;
-  var bins2 = 20;
+  var bins2 = 40;
   var kc = 2;
   var pts = [];
   var radius = .3;
@@ -79,7 +80,7 @@ function knot() {
   canvas.update = function(g) {
     g.clearRect(0,0,canvas.width, canvas.height);
     var cameraMotion = compose(mvMatrixAtPhi(kp, kq, time * speed),
-                               rotMatrixToDirAtPhi(kp, kq, time * speed)).invert();
+                               rotMatrixToDirAtPhi(kp, kq, time * speed, [0,1,0])).invert();
     var tt = compose(new Mat4().translate(0,0,.2) , cameraMotion);
     //var tt = new Mat4().translate(0,0,10.);
     var nnpts = pts.map(
