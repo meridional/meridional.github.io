@@ -45,11 +45,11 @@ function mvMatrixAtPhi(kp, kq, phi) {
                                      -Math.sin(phi * kq));
 }
 
-function makeKnot(kp, kq, begin, end, bins1) {
+function makeKnot(kp, kq, begin, end, bins1, bin2) {
   if (!begin) begin = 0;
   if (!end) end = Math.PI * 2;
   if (!bins1) bins1 = 500;
-  var bins2 = 40;
+  var bins2 = bin2 || 30;
   var kc = 2;
   var pts = [];
   var radius = .3;
@@ -97,11 +97,12 @@ function knot() {
     drawPts(canvas, nnpts, 2.5);
   }
   var c3 = initCanvas('canvas3');
+  var spts = makeKnot(kp,kq, 0, 2 * Math.PI, 400, 20);
   c3.update = function(g) {
     g.clearRect(0,0,c3.width,c3.height);
     var tt = compose(new Mat4().translate(0,0,10.), new Mat4().rotateY(time * .2));
     //var tt = new Mat4().translate(0,0,10.);
-    var nnpts = pts.map( function (ps) { return ps.map(function (p) { return tt.transform(p); })});
+    var nnpts = spts.map( function (ps) { return ps.map(function (p) { return tt.transform(p); })});
     g.stokeStyle = 'black';
     g.lineWidth = .1;
     drawPts(c3, nnpts, 2.5, 'black');
