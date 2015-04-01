@@ -148,9 +148,9 @@ angles.push(
 
 points.push(
   [new Vec(0, .1, 0),
-    new Vec(.0, .6, 0),
+    new Vec(.0, .8, 0),
     new Vec(0, .1, 0),
-    new Vec(0, -.6, 0),
+    new Vec(0, -.8, 0),
     new Vec(0, .1, 0)]);
 
 angles.push(
@@ -183,7 +183,7 @@ for (var i = 0; i < points.length; i++) {
 
 var canvas = initCanvas('canvas1');
 
-function makePoints(n, ps) {
+function makePoints(n, ps, c) {
   var t = n % 1;
   ps = ps || pts;
   if (t == 0) {
@@ -191,7 +191,7 @@ function makePoints(n, ps) {
   }
   var tt = [];
   var n1 = Math.floor(n);
-  var n2 = Math.ceil(n);
+  var n2 = c; 
   for (var i = 0; i < ps[n1].length; i++) {
     tt.push(new Vec(ps[n1][i].data[0] * (1-t) + ps[n2][i].data[0]*(t),
                     ps[n1][i].data[1] * (1-t) + ps[n2][i].data[1]*(t),
@@ -212,24 +212,44 @@ canvas.update = function (g) {
   var s1 = Math.floor(s/10);
   var s2 = s % 10;
   var am = d.getMilliseconds() / 1000;
+  var nnn = [h1+1,h2+1,m1+1,m2+1,s1+1,s2+1];
   if (m == 59 && s == 59) {
     h = h + am;
     h2 = h2 + am;
-    if (h2 > 9) h = h + am;
+    if (h2 > 9) {
+      h1 = h1 + am;
+    }
+    if (h == 23) {
+      nnn[0] = 0;
+      nnn[1] = 0;
+      h1 = h1 + am;
+    }
   }
   if (s == 59) {
     m = m + am;
     m2 = m2 + am;
-    if (m2 > 9) m1 = m1 + am;
+    if (m2 > 9) {
+      m1 = m1 + am;
+      nnn[5] = 0;
+      if (m1 > 5) nnn[2] = 0;
+      else nnn[2] = Math.ceil(m1);
+    }
   }
   s2 += am;
   if (s2 > 9) {
     s1 += am;
+    nnn[5] = 0;
+    if (s1 > 5) nnn[4] = 0;
+    else nnn[4] = Math.ceil(s1);
   }
   s = s + am;
   var ns = [h1, h2, m1, m2, s1, s2];
-  var ps = ns.map(function(n) { return makePoints (n)});  
-  var nps = ns.map(function(n) {return makePoints(n, points)});
+  var ps = []; 
+  var nps = [];
+  for (var i = 0; i < 6 ; i++) {
+    ps.push(makePoints(ns[i], pts, nnn[i]));
+    nps.push( makePoints(ns[i], points, nnn[i]));
+  }
   var displacement = [-3.5, -2.3, -0.6, 0.6, 2.3, 3.5];
   for (var i = 0; i < 6; i++) {
     drawPts(canvas,[ps[i].map(function(p) {
