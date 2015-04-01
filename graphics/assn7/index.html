@@ -1,0 +1,43 @@
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+          tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+          });
+</script>
+<script type="text/javascript" src="math.js"> </script>
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+<body>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <table class="table">
+        <tr>
+          <td><canvas style="background-color:pink" id=canvas1 width=600 height=600></canvas>
+          </td>
+          <td width=50></td>
+          <td valign=top>
+            <div class="modal-header">
+              <h4>Hermite curve drawing board</h4>
+            </div>
+            <div class="modal-body">
+              <ul>
+                <li>Click to add key point, the angles are interpolated from neighboring points</li>
+                <li>Press 'S' to 'save' current curve and start a new one, thus breaking matching derivative</li>
+                <li>Hold 'D' while clicking to delete a key point</li>
+              </ul>
+            </div> 
+            <div class="modal-footer">
+            </div>
+          </td>
+        </tr>
+        <!--<tr><td height=50></td></tr>-->
+      </table>
+    </div>
+  </div>
+  <script src="drawlib1.js"></script>
+  <script src="noise.js"></script>
+  <script src="platte.js"></script>
+</body>
