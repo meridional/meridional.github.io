@@ -1,0 +1,494 @@
+<script src=three.js></script>
+<body>
+
+
+<hr color=white size=75>
+
+
+<table>
+<tr>
+<td width=75></td>
+<td>
+<font face=helvetica>
+
+<center><big><b>
+
+Notes for April 8 class -- Building on three.js
+
+</b></big></center>
+
+
+<hr color=white size=50>
+
+
+<TABLE>
+<TR>
+<TD width=80%>
+<FONT face=helvetica>
+
+<p><b>Using a higher level library</b><p>
+
+<blockquote>
+Now that you have seen how to directly interface with WebGL,
+we can move on and use a higher level library.
+<a href=threejs.org>three.js</a> is an open source
+library that builds an infrastructure of modeling
+and rendering tools upon the base level of WebGL.
+It allows you to more rapidly create larger projects,
+without forcing you to deal with many of the low
+level details.
+<p>
+When you need to, it also gives you ways to directly
+access WebGL directly, which you might want to
+do if you choose to write your own shaders
+or create your own custom 3D shapes.
+</blockquote>
+
+</FONT>
+</TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;<p><hr>&nbsp;<p>
+
+
+<TABLE>
+<TR>
+<TD width=80%>
+<FONT face=helvetica>
+
+<p><b>Making simple scenes</b><p>
+
+<blockquote>
+
+The html file you are reading contains the following declaration:
+<pre>
+   &lt;script src=three.js>&lt;/script>
+</pre>
+<p>
+Three.js is very powerful and general, but
+while you are getting to know it,
+it can be good to start with simple things.
+<P>
+<font color=red>
+<b>NOTE:</b> There are different versions of the <code>three.js</code> source file.
+For stability in your assignments, please unzip and use
+the files referred to below in the homework assignment.
+</font>
+
+<P>
+I have created some support code to make it easier for you to make simple example scenes:
+<div id='SimpleScene_code'>
+<pre>
+   window.time = 0;
+   window.SimpleScene = function() {
+      this.init = function(name) {
+         this.scene = new THREE.Scene();
+
+         // CREATE THE CAMERA, AND ATTACH IT TO THE SCENE.
+
+         var camera = new THREE.PerspectiveCamera(50, 1, 1, 10000);
+         camera.position.z = 5;
+         this.scene.add(camera);
+
+         // CREATE THE WEBGL RENDERER, AND ATTACH IT TO THE DOCUMENT BODY.
+
+         var renderer = new THREE.WebGLRenderer( { alpha: true } );
+         renderer.setSize(400, 400);
+         document.getElementById(name).appendChild(renderer.domElement);
+
+         // CALL THE USER'S SETUP FUNCTION JUST ONCE.
+
+         this.setup();
+
+         // START THE ANIMATION LOOP.
+
+         var that = this;
+         (function tick() {
+            time = (new Date().getTime()) / 1000;
+            that.update();
+            renderer.render(that.scene, camera);
+            requestAnimationFrame(tick);
+         })();
+      }
+    };
+</pre>
+</div>
+<script>
+   function evalElement(name) {
+      eval(document.getElementById(name).innerHTML.replace(/<pre>/,'').replace(/<.pre>/,''));
+   }
+</script>
+<script>evalElement('SimpleScene_code');</script>
+</blockquote>
+
+</FONT>
+</TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;<p><hr>&nbsp;<p>
+
+
+<TABLE>
+<TR>
+<TD width=80%>
+<FONT face=helvetica>
+
+<p><b>A very simple example</b><p>
+
+<blockquote>
+
+Given the above support,
+the code shown in the left column of the below 2&#215;1 table, when placed within a <code>&lt;script&gt;</code>
+tag
+and a
+<code>&lt;/script&gt;</code>
+tag,
+produces the simple animated scene shown in the right column of the table.
+<p>
+The HTML code I used for the right column of the below table is:
+<code>&lt;td id='Scene1_id'>&lt;/td></code>
+
+<table>
+<tr>
+<td id=Scene1_code>
+<pre>
+function Scene1() {
+   var box;
+
+   this.setup = function() {
+      var geometry = new THREE.BoxGeometry(2, 2, 2);
+      var material = new THREE.MeshNormalMaterial();
+      box = new THREE.Mesh(geometry, material);
+      this.scene.add(box);
+   }
+
+   this.update = function() {
+      box.rotation.x += 0.01;
+      box.rotation.y += 0.02;
+   }
+}
+Scene1.prototype = new SimpleScene;
+new Scene1().init('Scene1_id');
+</pre>
+</td>
+<td id='Scene1_id'></td>
+</tr>
+</table>
+<script>evalElement('Scene1_code');</script>
+</blockquote>
+
+</FONT>
+</TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;<p><hr>&nbsp;<p>
+
+
+<TABLE>
+<TR>
+<TD width=80%>
+<FONT face=helvetica>
+
+<p><b>Creating a jointed hierarchy</b><p>
+
+<blockquote>
+
+Here we are creating an object hierarchy,
+using an invisible intermediate joint to help
+create an animation of a ball rolling around in a circular path atop a box:
+<p>
+<ul>
+<li>
+The invisible joint, which is a child of the box, rotates about the y axis.
+<p>
+<li>
+The ball, which is a child of the invisible joint, spins in place about the x axis, at position (1,0,0).
+</ul>
+<p>
+The combined movements of the joint and the ball create the desired animation.
+<p>
+
+<table>
+<tr>
+<td id='Scene2_code'>
+<pre>
+function Scene2() {
+   var box, joint, ball;
+
+   this.setup = function() {
+      var light = new THREE.DirectionalLight(0xffffff);
+      light.position.set(1,1,1).normalize();
+      this.scene.add(light);
+
+      var material = new THREE.MeshNormalMaterial();
+
+      box = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), material);
+      joint = new THREE.Mesh();
+      ball = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16), material);
+
+      this.scene.add(box);
+      box.add(joint);
+      joint.add(ball);
+   }
+
+   this.update = function() {
+      box.rotation.x = .5;
+
+      joint.position.y = 1.5;
+      joint.rotation.y = time;
+
+      ball.position.set(1,0,0);
+      ball.rotation.x = -time;
+      ball.rotation.z = Math.PI/2;
+      ball.scale.set(.5,.5,.5);
+   }
+}
+Scene2.prototype = new SimpleScene;
+new Scene2().init('Scene2_id');
+</pre>
+</td>
+<td id='Scene2_id'></td>
+</tr>
+</table>
+<script>evalElement('Scene2_code');</script>
+</blockquote>
+
+</FONT>
+</TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;<p><hr>&nbsp;<p>
+
+
+<TABLE>
+<TR>
+<TD width=80%>
+<FONT face=helvetica>
+
+<p><b>Using a pre-defined three.js material</b><p>
+
+<blockquote>
+
+Here is an example of using a material based on a Phong shader
+that has been written for you by three.js.
+<p>
+
+When using a pre-defined material,
+all you need to do is provide the shader parameters.
+<p>
+
+<table>
+<tr>
+<td id='Scene3_code'>
+<pre>
+function Scene3() {
+   var light, ball;
+
+   this.setup = function() {
+      light = new THREE.DirectionalLight(0xffffff);
+      light.position.set(1,1,1).normalize();
+      this.scene.add(light);
+
+      var ballGeometry = new THREE.SphereGeometry(1, 16, 16);
+      var ballMaterial = new THREE.MeshPhongMaterial({
+         ambient  : 0,
+         emissive : 0x800000,
+         color    : 0x800000,
+         specular : 0x101010,
+         shininess: 40
+      });
+      ball = new THREE.Mesh(ballGeometry, ballMaterial);
+      ball.material.shading = THREE.SmoothShading;
+
+      this.scene.add(ball);
+   }
+
+   this.update = function() {
+      light.position.set(Math.sin(10 * time), 1, 1).normalize();
+   }
+}
+Scene3.prototype = new SimpleScene;
+new Scene3().init('Scene3_id');
+</pre>
+</td>
+<td id='Scene3_id'></td>
+</tr>
+</table>
+<script>evalElement('Scene3_code')</script>
+</blockquote>
+
+</FONT>
+</TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;<p><hr>&nbsp;<p>
+
+
+<TABLE>
+<TR>
+<TD width=80%>
+<FONT face=helvetica>
+
+<p><b>Defining your own vertex and fragment shaders</b><p>
+
+<blockquote>
+Three.js will also let you define your own custom materials,
+by specifying your own vertex and fragment shaders.
+THe three.js library will then compile these for you, and
+incorporate them into the scene like any other materials.
+<p>
+Below is the simple example we created in class.
+<p>
+<table>
+<tr>
+<td id='Scene4_code'>
+<pre>
+function Scene4() {
+
+   var myVertexShader = [
+      ,'varying vec3 vPosition;'
+      ,'varying vec3 vNormal;'
+      ,'void main() {'
+      ,'   vPosition = position;'
+      ,'   vNormal = normal;'
+      ,'   gl_Position = projectionMatrix * modelViewMatrix * '
+      ,'                 vec4( position + vec3(0.,.1,.1) * '
+      ,'                                  sin(10. * position.x), 1.);'
+      ,'}'
+   ].join('\n');
+
+   var myFragmentShader = [
+      ,'varying vec3 vPosition;'
+      ,'varying vec3 vNormal;'
+      ,'void main() {'
+      ,'   float c = .5 + .3 * (vNormal.x + vNormal.y + vNormal.z);'
+      ,'   gl_FragColor = vec4(c, c, c*.5, 1.);'
+      ,'}'
+   ].join('\n');
+
+   var fred;
+
+   this.setup = function() {
+      var light = new THREE.DirectionalLight(0xffffff);
+      light.position.set(1,1,1).normalize();
+      this.scene.add(light);
+
+      var material = new THREE.Material();
+      material.vertexShader = myVertexShader;
+      material.fragmentShader = myFragmentShader;
+      material.shading = THREE.SmoothShading;
+
+      fred = new THREE.Mesh(new THREE.SphereGeometry(1,32,16), material);
+      this.scene.add(fred);
+   }
+
+   this.update = function() {
+      fred.rotation.x += 0.01;
+      fred.rotation.y += 0.01;
+   }
+}
+Scene4.prototype = new SimpleScene;
+new Scene4().init('Scene4_id');
+</pre>
+</td>
+<td id='Scene4_id'></td>
+</tr>
+</table>
+<script>evalElement('Scene4_code')</script>
+</blockquote>
+
+</FONT>
+</TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;<p><hr>&nbsp;<p>
+
+
+<TABLE>
+<TR>
+<TD width=80%>
+<FONT face=helvetica>
+<p><b>A tour through the cool three.js examples</b><p>
+<blockquote>
+We looked at some of the cooler examples on the three.js front page:
+<blockquote>
+<a href=http://threejs.org target=1>threejs.org</a>
+</blockquote>
+Then we looked at some of the many tutorial examples on their examples page:
+<blockquote>
+<a href=http://threejs.org/examples target=1>threejs.org/examples</a>
+</blockquote>
+I encourage you to look through those pages for yourself, and
+spend some time just exploring.
+</blockquote>
+
+</FONT>
+</TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;<p><hr>&nbsp;<p>
+
+
+<TABLE>
+<TR>
+<TD width=80%>
+<FONT face=helvetica>
+
+<p><b>Homework, due by start of class on Wednesday April 15</b><p>
+<blockquote>
+<ul>
+<li>
+Start out by <a href=../April_8.zip>unzipping this copy of these course notes</a>.
+You will build your assignment by modifying index.html in that unzipped folder.
+<p>
+<li>
+Make something cool and fun using three.js.
+Feel free to build on top of the code that I have
+already provided.
+But please do not simply create something very close
+to the examples on this page.
+You should only use the examples on this page
+as a starting point to create your own original work.
+<p>
+
+<li>
+Extra credit:
+Find something that inspires you in the three.js examples,
+and create something original based on that.
+Don't simply copy their example with minor variations.
+<p>
+
+</ul>
+
+As always, you get extra points for making something that is fun, exciting, beautiful or original.
+
+</blockquote>
+
+</FONT>
+</TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;<p><hr>&nbsp;<p>
+
+
+<hr color=white size=1000>
+</font>
+</td><td width=75>&nbsp;</td></tr></table>
+</body>
+
