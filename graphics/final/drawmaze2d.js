@@ -21,3 +21,4 @@ function start() {
     };
 }
 start();
+//# sourceMappingURL=drawmaze2d.js.map

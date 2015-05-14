@@ -1,9 +1,9 @@
 // uses kruskal algorithm
 function kruskal(rows : number, cols : number) : Array<Edge> {
-  var cells : Array<Array<Vertex>> = new Array();
+  var cells : Array<Array<Vertex>> = [];
   // make a matrix of cells
   for (var i = 0; i < rows; i++) {
-    var tmp : Array<Vertex> = new Array();
+    var tmp : Array<Vertex> = [];
     for (var j = 0; j < cols; j++) {
       tmp.push(new Vertex(i, j, rows, cols));
     }
@@ -11,7 +11,7 @@ function kruskal(rows : number, cols : number) : Array<Edge> {
   }
 
   // make the edges
-  var edges : Array<Edge> = new Array();
+  var edges : Array<Edge> = [];
   for (var i = 0; i < rows - 1; i++) {
     for (var j = 0; j < cols - 1; j++) {
       edges.push(new Edge(cells[i][j], cells[i+1][j], Math.random()));
@@ -29,7 +29,7 @@ function kruskal(rows : number, cols : number) : Array<Edge> {
 
   // kruskal
   var union = new UnionFind(rows * cols);
-  var result : Array<Edge> = new Array();
+  var result : Array<Edge> = [];
   for (var i : number = 0; i < edges.length; i++) {
     if (union.find(edges[i].from.id) != union.find(edges[i].to.id)) {
       result.push(edges[i]);

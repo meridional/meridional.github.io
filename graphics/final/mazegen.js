@@ -1,16 +1,15 @@
 // uses kruskal algorithm
 function kruskal(rows, cols) {
-    var cells = new Array();
-    // make a matrix of cells
+    var cells = [];
     for (var i = 0; i < rows; i++) {
-        var tmp = new Array();
+        var tmp = [];
         for (var j = 0; j < cols; j++) {
             tmp.push(new Vertex(i, j, rows, cols));
         }
         cells.push(tmp);
     }
     // make the edges
-    var edges = new Array();
+    var edges = [];
     for (var i = 0; i < rows - 1; i++) {
         for (var j = 0; j < cols - 1; j++) {
             edges.push(new Edge(cells[i][j], cells[i + 1][j], Math.random()));
@@ -24,10 +23,12 @@ function kruskal(rows, cols) {
         edges.push(new Edge(cells[rows - 1][j], cells[rows - 1][j + 1], Math.random()));
     }
     // shuffle edges randomly
-    edges.sort(function (a, b) { return a.weight - b.weight; });
+    edges.sort(function (a, b) {
+        return a.weight - b.weight;
+    });
     // kruskal
     var union = new UnionFind(rows * cols);
-    var result = new Array();
+    var result = [];
     for (var i = 0; i < edges.length; i++) {
         if (union.find(edges[i].from.id) != union.find(edges[i].to.id)) {
             result.push(edges[i]);
@@ -78,3 +79,4 @@ var Vertex = (function () {
     }
     return Vertex;
 })();
+//# sourceMappingURL=mazegen.js.map
