@@ -31,8 +31,10 @@ function kruskal(rows, cols) {
     var result = [];
     for (var i = 0; i < edges.length; i++) {
         if (union.find(edges[i].from.id) != union.find(edges[i].to.id)) {
-            result.push(edges[i]);
             union.union(edges[i].from.id, edges[i].to.id);
+        }
+        else {
+            result.push(edges[i]);
         }
     }
     return result;
