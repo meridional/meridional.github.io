@@ -60,7 +60,7 @@ var MazeScene = (function () {
         // texture.minFilter = THREE.NearestFilter;
         //texture.wrapS = THREE.RepeatWrapping;
         //texture.wrapT = THREE.RepeatWrapping;
-        var mat = new THREE.MeshPhongMaterial({ map: texture, wireframe: false });
+        var mat = new THREE.MeshLambertMaterial({ map: texture, wireframe: false, shininess: 1 });
         //var mat = new THREE.MeshNormalMaterial();
         // Create a Scene
         var scene = new THREE.Scene();
@@ -91,9 +91,12 @@ var MazeScene = (function () {
         this.walls = new THREE.Mesh(wallsGeo, mat);
         scene.add(this.walls);
         this.scene.add(new THREE.AmbientLight(0x0f0f0f));
-        var floortext = THREE.ImageUtils.loadTexture("floor.jpg");
+        var floortext = THREE.ImageUtils.loadTexture("floor_1.jpg");
+        floortext.wrapS = THREE.RepeatWrapping;
+        floortext.wrapT = THREE.RepeatWrapping;
+        floortext.repeat.set(rows, cols);
         var plane = new THREE.PlaneBufferGeometry(cols * wallLength * 2, rows * wallLength * 2);
-        var floor = new THREE.Mesh(plane, new THREE.MeshPhongMaterial({ color: 0xaaaaaa, wireframe: false, map: floortext, side: THREE.DoubleSide, repeat: [rows / 2, cols / 2] }));
+        var floor = new THREE.Mesh(plane, new THREE.MeshPhongMaterial({ color: 0xaaaaaa, wireframe: false, map: floortext, side: THREE.DoubleSide, repeat: [rows * 2, cols * 2] }));
         floor.rotateX(Math.PI / 2);
         floor.receiveShadow = true;
         var ceil = new THREE.Mesh(plane, new THREE.MeshPhongMaterial({
