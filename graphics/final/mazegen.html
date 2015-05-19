@@ -6,9 +6,24 @@
   <script src="mazegen.js"></script>
   <script src="drawmaze3d.js"></script>
   <script src="three.js"></script>
+  <script src="drawlib1.js"></script>
   <title></title>
 </head>
 <body>
-<p id="content"></p>
+<h2>Maze</h2>
+<table>
+  <tr>
+    <td id="content">
+
+    </td>
+    <td style="vertical-align: text-top;">
+      <canvas id="canvas1" width="200" height="200" style="border:1px solid"></canvas>
+      <p>Press "WASD" to move around.</p>
+      <p id="description">Find the glowing orb to advance to the next level.
+        Difficulty: <span id="diff">2-by-2</span></p>
+    </td>
+  </tr>
+</table>
+
 </body>
 </html>
